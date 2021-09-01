@@ -1,13 +1,16 @@
-package com.ram.airquality
+package com.ram.airquality.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ram.airquality.adapter.CityAirAdapter
+import com.ram.airquality.adapter.AirQualityAdapter
 import com.ram.airquality.databinding.ActivityMainBinding
-import com.ram.airquality.model.CityModelItem
+import com.ram.airquality.model.AirQualityModelItem
+import com.ram.airquality.viewModel.AirQualityViewModel
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -24,7 +27,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var webSocketClient: WebSocketClient
-    private lateinit var cityAirAdapter: CityAirAdapter
+    private lateinit var airQualityAdapter: AirQualityAdapter
+    private var tempList = ArrayList<AirQualityModelItem>()
+    private lateinit var airQualityViewModel: AirQualityViewModel
 
     companion object {
         const val WEB_SOCKET_URL = "ws://city-ws.herokuapp.com/" //"wss://ws-feed.pro.coinbase.com"
@@ -35,7 +40,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        val airQualityUri = URI(WEB_SOCKET_URL)
+        airQualityViewModel = ViewModelProvider(this).get(AirQualityViewModel::class.java)
+        airQualityViewModel.connectToWebSocket(airQualityUri)
         initRecyclerview()
+        setUpObserver()
+        airQualityViewModel.getAirQualityData()
+
     }
 
     private fun initRecyclerview() {
@@ -43,9 +54,18 @@ class MainActivity : AppCompatActivity() {
             layoutManager =
                 LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
             setHasFixedSize(true)
-            cityAirAdapter = CityAirAdapter()
-            adapter = cityAirAdapter
+            airQualityAdapter = AirQualityAdapter()
+            adapter = airQualityAdapter
         }
+    }
+
+    private fun setUpObserver() {
+        airQualityViewModel.getAirQualityData().observe(this, Observer {
+            it.let {
+                airQualityAdapter.submitList(it)
+                binding.rvCityAirlist.invalidate()
+            }
+        })
     }
 
     override fun onResume() {
@@ -55,13 +75,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        webSocketClient.close()
+        //webSocketClient.close()
     }
 
     private fun initWebSocket() {
         val coinbaseUri = URI(WEB_SOCKET_URL)
-
-        createWebSocketClient(coinbaseUri)
+        //createWebSocketClient(coinbaseUri)
     }
 
     private fun createWebSocketClient(coinbaseUri: URI?) {
@@ -90,18 +109,28 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun showCityWiseAirQuality(message: String?) {
-        message?.let {
+        message?.let { it ->
             val moshi = Moshi.Builder().build()
             val type: Type = Types.newParameterizedType(
                 List::class.java,
-                CityModelItem::class.java
+                AirQualityModelItem::class.java
             )
-            val adapter: JsonAdapter<List<CityModelItem>> = moshi.adapter(type)
-            val cityAirList = adapter.fromJson(message)
-            runOnUiThread {
-                cityAirAdapter.submitList(cityAirList)
-                cityAirAdapter.notifyDataSetChanged()
 
+            val adapter: JsonAdapter<ArrayList<AirQualityModelItem>> = moshi.adapter(type)
+            val cityAirList = adapter.fromJson(it)
+            if (tempList.isNullOrEmpty()) {
+                tempList = cityAirList!!
+            } else {
+                val differencelist = cityAirList!!.minus(tempList)
+                Log.d("temp 2", "$tempList")
+                Log.d("city 2", "$cityAirList")
+                Log.d("differencelist", "$differencelist")
+                Log.d("test", "....................................................")
+            }
+            runOnUiThread {
+                airQualityAdapter.submitList(cityAirList)
+                binding.rvCityAirlist.invalidate()
+                //cityAirAdapter.notifyDataSetChanged()
             }
         }
     }
