@@ -28,7 +28,7 @@ class AirQualityViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun getAirQualityData(): LiveData<List<AirQualityModelItem>> {
-        return airQualityRepository.aireQualityReponse()
+        return airQualityRepository.airQualityRepose()
     }
 
 }

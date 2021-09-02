@@ -9,11 +9,10 @@ import com.squareup.moshi.JsonClass
 @Entity(tableName = "cityWiseAirReading")
 @JsonClass(generateAdapter = true)
 data class AirQualityModelItem(
+    @PrimaryKey
     @Json(name = "city")
-    val city: String?,
+    val city: String,
     @Json(name = "aqi")
-    val aqi: Double?
-) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
-}
+    val aqi: Double?,
+    val timing: String? = ""
+)

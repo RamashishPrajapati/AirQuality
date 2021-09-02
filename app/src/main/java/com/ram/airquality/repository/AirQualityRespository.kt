@@ -14,6 +14,8 @@ import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.reflect.Type
 import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by Ramashish Prajapati on 31,August,2021
@@ -26,7 +28,7 @@ class AirQualityRespository(private val airQualityDao: AirQualityDao) {
         webSocketClient = object : WebSocketClient(coinbaseUri) {
             override fun onOpen(handshakedata: ServerHandshake?) {
                 Log.d(MainActivity.TAG, "onOpen")
-                //subscribe() to websockets by writing a format if any to connect with websockets
+                //subscribe() //to websockets by writing a format if any to connect with websockets
             }
 
             override fun onMessage(message: String?) {
@@ -57,16 +59,35 @@ class AirQualityRespository(private val airQualityDao: AirQualityDao) {
                 )
 
                 val adapter: JsonAdapter<ArrayList<AirQualityModelItem>> = moshi.adapter(type)
-                val reponse = adapter.fromJson(it)
-                airQualityList.postValue(reponse!!)
+                val response = adapter.fromJson(it)
+                for (city in response!!.iterator()) {
+                    val date = Calendar.getInstance().time
+                    val formatter =
+                        SimpleDateFormat.getTimeInstance() //or use getDateInstance()
+                    val formattedDate = formatter.format(date)
+                    airQualityDao.insertOrUpdate(
+                        AirQualityModelItem(
+                            city.city,
+                            city.aqi,
+                            formattedDate
+                        )
+                    )
+                }
+                getCityDetailFromDB()
+                //airQualityList.postValue(response!!)
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun aireQualityReponse(): LiveData<List<AirQualityModelItem>> {
+    fun airQualityRepose(): LiveData<List<AirQualityModelItem>> {
         return airQualityList
+    }
+
+    fun getCityDetailFromDB() {
+        val cityDetails = airQualityDao.getAllCityDetails()
+        return airQualityList.postValue(cityDetails)
     }
 
 }

@@ -2,4 +2,5 @@
     <string name="app_name">AirQuality</string>
     <string name="city_name">City Name</string>
     <string name="air_qulity">Air qulity</string>
+    <string name="air_quality_timing">Air Quality Timing</string>
 </resources>

@@ -32,6 +32,7 @@ class AirQualityAdapter :
         fun bind(item: AirQualityModelItem) = with(itemView) {
             itemView.tvCityName.text = item.city
             itemView.tvAirQuality.text = roundOffDecimal(item.aqi!!).toString()
+            itemView.tvTime.text = item.timing
         }
     }
 }
@@ -42,14 +43,18 @@ fun roundOffDecimal(number: Double): Double? {
 }
 
 class CityAirDiffDiffCallback : DiffUtil.ItemCallback<AirQualityModelItem>() {
-    override fun areItemsTheSame(oldItem: AirQualityModelItem, newItem: AirQualityModelItem): Boolean {
-        return oldItem.city == newItem.city &&
-                oldItem.aqi == newItem.aqi
+    override fun areItemsTheSame(
+        oldItem: AirQualityModelItem,
+        newItem: AirQualityModelItem
+    ): Boolean {
+        return oldItem.city == newItem.city
     }
 
-    override fun areContentsTheSame(oldItem: AirQualityModelItem, newItem: AirQualityModelItem): Boolean {
-        return oldItem.city == newItem.city &&
-                oldItem.aqi == newItem.aqi
+    override fun areContentsTheSame(
+        oldItem: AirQualityModelItem,
+        newItem: AirQualityModelItem
+    ): Boolean {
+        return oldItem.city == newItem.city
     }
 
 } 

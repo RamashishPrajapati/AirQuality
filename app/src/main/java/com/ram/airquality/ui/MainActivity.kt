@@ -63,7 +63,9 @@ class MainActivity : AppCompatActivity() {
         airQualityViewModel.getAirQualityData().observe(this, Observer {
             it.let {
                 airQualityAdapter.submitList(it)
-                binding.rvCityAirlist.invalidate()
+                    //binding.rvCityAirlist.invalidate()
+                airQualityAdapter.notifyDataSetChanged()
+
             }
         })
     }
@@ -130,7 +132,6 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 airQualityAdapter.submitList(cityAirList)
                 binding.rvCityAirlist.invalidate()
-                //cityAirAdapter.notifyDataSetChanged()
             }
         }
     }
