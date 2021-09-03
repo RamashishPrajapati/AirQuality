@@ -14,5 +14,5 @@ data class AirQualityModelItem(
     val city: String,
     @Json(name = "aqi")
     val aqi: Double?,
-    val timing: String? = ""
+    var timing: String? = ""
 )

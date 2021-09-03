@@ -21,16 +21,13 @@ interface AirQualityDao {
     @Query("SELECT * FROM cityWiseAirReading")
     fun getAllCityDetails(): List<AirQualityModelItem>
 
-    @Query("SELECT * from cityWiseAirReading WHERE city= :city")
-    fun getItem(city: String): List<AirQualityModelItem?>?
-
-    /*@Query("SELECT city FROM cityWiseAirReading WHERE city Like :city")
-    fun getItem(city: String): String?*/
+    @Query("SELECT city FROM cityWiseAirReading WHERE city Like :city")
+    fun getItem(city: String): String?
 
     fun insertOrUpdate(cityList: AirQualityModelItem) {
         try {
             val itemsFromDB = getItem(cityList.city)
-            if (itemsFromDB!!.isEmpty())
+            if (itemsFromDB == null)
                 insertCityDetails(cityList)
             else
                 updateCityDetails(cityList)

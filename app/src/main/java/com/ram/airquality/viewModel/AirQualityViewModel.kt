@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.ram.airquality.database.AirQualityDatabase
 import com.ram.airquality.model.AirQualityModelItem
-import com.ram.airquality.repository.AirQualityRespository
+import com.ram.airquality.repository.AirQualityRepository
 import java.net.URI
 
 /**
@@ -14,13 +14,13 @@ import java.net.URI
  */
 
 class AirQualityViewModel(application: Application) : AndroidViewModel(application) {
-    private val airQualityRepository: AirQualityRespository
+    private val airQualityRepository: AirQualityRepository
 
     init {
         val airQualityDao =
             AirQualityDatabase.getDatabase(application, viewModelScope, application.resources)
                 .airQualityDao()
-        airQualityRepository = AirQualityRespository(airQualityDao)
+        airQualityRepository = AirQualityRepository(airQualityDao)
     }
 
     fun connectToWebSocket(url: URI) {
@@ -29,6 +29,10 @@ class AirQualityViewModel(application: Application) : AndroidViewModel(applicati
 
     fun getAirQualityData(): LiveData<List<AirQualityModelItem>> {
         return airQualityRepository.airQualityRepose()
+    }
+
+    fun disconnectWebSocket(){
+        airQualityRepository.closeWebsockets()
     }
 
 }

@@ -26,6 +26,7 @@ class AirQualityAdapter :
 
     override fun onBindViewHolder(holder: ItemViewholder, position: Int) {
         holder.bind(getItem(position))
+
     }
 
     class ItemViewholder(binding: ItemCityairBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -42,6 +43,7 @@ fun roundOffDecimal(number: Double): Double? {
     return decimal.toDouble()
 }
 
+/*Check the logic behind DiffUtil*/
 class CityAirDiffDiffCallback : DiffUtil.ItemCallback<AirQualityModelItem>() {
     override fun areItemsTheSame(
         oldItem: AirQualityModelItem,
@@ -57,4 +59,10 @@ class CityAirDiffDiffCallback : DiffUtil.ItemCallback<AirQualityModelItem>() {
         return oldItem.city == newItem.city
     }
 
-} 
+    override fun getChangePayload(
+        oldItem: AirQualityModelItem,
+        newItem: AirQualityModelItem
+    ): Any? {
+        return super.getChangePayload(oldItem, newItem)
+    }
+}

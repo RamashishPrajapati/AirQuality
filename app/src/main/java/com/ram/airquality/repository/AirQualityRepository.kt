@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ram.airquality.dao.AirQualityDao
 import com.ram.airquality.model.AirQualityModelItem
-import com.ram.airquality.ui.MainActivity
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -14,38 +13,45 @@ import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.reflect.Type
 import java.net.URI
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+
 
 /**
  * Created by Ramashish Prajapati on 31,August,2021
  */
-class AirQualityRespository(private val airQualityDao: AirQualityDao) {
+class AirQualityRepository(private val airQualityDao: AirQualityDao) {
     private lateinit var webSocketClient: WebSocketClient
     private var airQualityList = MutableLiveData<List<AirQualityModelItem>>()
+    private val formatter = DateTimeFormatter.ofPattern("hh:mm:ss a")
 
-    public fun createWebSocketClient(coinbaseUri: URI?) {
-        webSocketClient = object : WebSocketClient(coinbaseUri) {
+
+    fun createWebSocketClient(airQualityUri: URI?) {
+        webSocketClient = object : WebSocketClient(airQualityUri) {
             override fun onOpen(handshakedata: ServerHandshake?) {
-                Log.d(MainActivity.TAG, "onOpen")
-                //subscribe() //to websockets by writing a format if any to connect with websockets
+                Log.d(javaClass.simpleName, "onOpen")
             }
 
             override fun onMessage(message: String?) {
-                Log.d(MainActivity.TAG, "onMessage: $message")
+                Log.d(javaClass.simpleName, "onMessage: $message")
                 showCityWiseAirQuality(message)
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
-                Log.d(MainActivity.TAG, "onClose")
-                //unsubscribe() to websockets by writing a format if any to disconnect with websockets
+                Log.d(javaClass.simpleName, "onClose")
             }
 
             override fun onError(ex: Exception?) {
-                Log.e("createWebSocketClient", "onError: ${ex?.message}")
+                Log.e(javaClass.simpleName, "onError: ${ex?.message}")
             }
         }
         webSocketClient.connect()//to connect the webSocketClient to server
+    }
+
+    fun closeWebsockets() {
+        webSocketClient.close()
     }
 
     @SuppressLint("SetTextI18n")
@@ -57,24 +63,19 @@ class AirQualityRespository(private val airQualityDao: AirQualityDao) {
                     List::class.java,
                     AirQualityModelItem::class.java
                 )
-
                 val adapter: JsonAdapter<ArrayList<AirQualityModelItem>> = moshi.adapter(type)
                 val response = adapter.fromJson(it)
+
                 for (city in response!!.iterator()) {
-                    val date = Calendar.getInstance().time
-                    val formatter =
-                        SimpleDateFormat.getTimeInstance() //or use getDateInstance()
-                    val formattedDate = formatter.format(date)
                     airQualityDao.insertOrUpdate(
                         AirQualityModelItem(
                             city.city,
                             city.aqi,
-                            formattedDate
+                            getCurrentTime()
                         )
                     )
                 }
                 getCityDetailFromDB()
-                //airQualityList.postValue(response!!)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -85,9 +86,36 @@ class AirQualityRespository(private val airQualityDao: AirQualityDao) {
         return airQualityList
     }
 
-    fun getCityDetailFromDB() {
-        val cityDetails = airQualityDao.getAllCityDetails()
+    private fun getCityDetailFromDB() {
+
+        val cityDetails =
+            airQualityDao.getAllCityDetails() as ArrayList
+
+        cityDetails.forEachIndexed { index, airQualityModelItem ->
+            cityDetails[index] = AirQualityModelItem(
+                airQualityModelItem.city,
+                airQualityModelItem.aqi,
+                getTimeDifference(airQualityModelItem.timing!!)
+            )
+        }
         return airQualityList.postValue(cityDetails)
     }
 
+    private fun getCurrentTime(): String? {
+        val current = LocalDateTime.now()
+        return current.format(formatter)
+    }
+
+    private fun getTimeDifference(timeFromDB: String): String {
+        val currentTime = LocalTime.parse(getCurrentTime(), formatter)
+        val storeTime = LocalTime.parse(timeFromDB, formatter)
+        val minutes = ChronoUnit.MINUTES.between(storeTime, currentTime)
+        return when {
+            minutes < 1 -> "A few second ago"
+            minutes.equals(1) -> "A minutes ago"
+            minutes in 2..59 -> "$minutes minutes ago"
+            minutes >= 60 -> "$timeFromDB"
+            else -> "Updating"
+        }
+    }
 }
