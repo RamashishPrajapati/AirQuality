@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
         airQualityViewModel.getCityAirQualityList.observe(this, {
             it.let {
                 airQualityAdapter.submitList(it)
-                //airQualityAdapter.notifyDataSetChanged()
             }
         })
     }
