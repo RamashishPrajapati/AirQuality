@@ -1,15 +1,11 @@
 package com.ram.airquality.database
 
 import android.content.Context
-import android.content.res.Resources
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ram.airquality.dao.AirQualityDao
 import com.ram.airquality.model.AirQualityModelItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * Created by Ramashish Prajapati on 31,August,2021
@@ -30,43 +26,25 @@ abstract class AirQualityDatabase : RoomDatabase() {
 
         fun getDatabase(
             context: Context,
-            coroutineScope: CoroutineScope,
-            resources: Resources
         ): AirQualityDatabase {
-            val tempInstanc = INSTANCE
-            if (tempInstanc != null) {
-                return tempInstanc
-            }
 
             synchronized(this)
             {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AirQualityDatabase::class.java,
-                    "AirQuality_Database"
-                )
-                    .build()
+                var tempInstance = INSTANCE
+                if (tempInstance == null) {
+                    tempInstance = Room.databaseBuilder(
+                        context.applicationContext,
+                        AirQualityDatabase::class.java,
+                        "AirQuality_Database"
+                    )
+                        .fallbackToDestructiveMigration()
+                        .build()
 
-                INSTANCE = instance
-                return instance
-            }
-        }
-    }
-
-    private class AirQualityDatabaseCallback(
-        private val scope: CoroutineScope,
-        private val resources: Resources
-    ) : RoomDatabase.Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
-            INSTANCE.let { database ->
-                scope.launch {
+                    INSTANCE = tempInstance
 
                 }
+                return tempInstance!!
             }
-
         }
     }
-
-
 }

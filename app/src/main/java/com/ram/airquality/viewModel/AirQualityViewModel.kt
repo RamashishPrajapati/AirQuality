@@ -2,10 +2,8 @@ package com.ram.airquality.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
+import com.ram.airquality.dao.AirQualityDao
 import com.ram.airquality.database.AirQualityDatabase
-import com.ram.airquality.model.AirQualityModelItem
 import com.ram.airquality.repository.AirQualityRepository
 import java.net.URI
 
@@ -15,23 +13,20 @@ import java.net.URI
 
 class AirQualityViewModel(application: Application) : AndroidViewModel(application) {
     private val airQualityRepository: AirQualityRepository
+    private val airQualityDao: AirQualityDao = AirQualityDatabase.getDatabase(application)
+        .airQualityDao()
 
     init {
-        val airQualityDao =
-            AirQualityDatabase.getDatabase(application, viewModelScope, application.resources)
-                .airQualityDao()
         airQualityRepository = AirQualityRepository(airQualityDao)
     }
+
+    val getCityAirQualityList = airQualityDao.getAllCityDetails()
 
     fun connectToWebSocket(url: URI) {
         airQualityRepository.createWebSocketClient(url)
     }
 
-    fun getAirQualityData(): LiveData<List<AirQualityModelItem>> {
-        return airQualityRepository.airQualityRepose()
-    }
-
-    fun disconnectWebSocket(){
+    fun disconnectWebSocket() {
         airQualityRepository.closeWebsockets()
     }
 

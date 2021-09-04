@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">AirQuality</string>
     <string name="city_name">City Name</string>
-    <string name="air_qulity">Air qulity</string>
+    <string name="air_quality">Air quality</string>
     <string name="air_quality_timing">Air Quality Timing</string>
+    <string name="minutes_length">%d minutes ago</string>
+    <string name="hours_length">%d </string>
+    <string name="seconds_length">%d seconds gao </string>
+    <string name="refresh">Refresh</string>
+
 </resources>

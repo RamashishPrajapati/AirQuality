@@ -1,5 +1,6 @@
 package com.ram.airquality.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -19,7 +20,7 @@ interface AirQualityDao {
     fun updateCityDetails(cityList: AirQualityModelItem): Int
 
     @Query("SELECT * FROM cityWiseAirReading")
-    fun getAllCityDetails(): List<AirQualityModelItem>
+    fun getAllCityDetails(): LiveData<List<AirQualityModelItem>>
 
     @Query("SELECT city FROM cityWiseAirReading WHERE city Like :city")
     fun getItem(city: String): String?

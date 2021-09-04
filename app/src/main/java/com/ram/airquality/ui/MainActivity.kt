@@ -19,17 +19,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var airQualityAdapter: AirQualityAdapter
     private lateinit var airQualityViewModel: AirQualityViewModel
+    private lateinit var airQualityUri: URI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val airQualityUri = URI(Constants.AIR_QUALITY_WEB_SOCKET_URL)
+        airQualityUri = URI(Constants.AIR_QUALITY_WEB_SOCKET_URL)
         airQualityViewModel = ViewModelProvider(this).get(AirQualityViewModel::class.java)
-        airQualityViewModel.connectToWebSocket(airQualityUri)
         initRecyclerview()
         setUpObserver()
+        initListener()
+    }
 
+    private fun initListener() {
+        binding.btnRefresh.setOnClickListener {
+            airQualityViewModel.connectToWebSocket(airQualityUri)
+        }
     }
 
     private fun initRecyclerview() {
@@ -43,19 +49,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpObserver() {
-        airQualityViewModel.getAirQualityData().observe(this, {
+        airQualityViewModel.getCityAirQualityList.observe(this, {
             it.let {
                 airQualityAdapter.submitList(it)
-                airQualityAdapter.notifyDataSetChanged()
-                /*Replace the notifyDataSetChanged to notifyItemRangeChanged, figure out how*/
+                //airQualityAdapter.notifyDataSetChanged()
             }
         })
     }
 
     override fun onResume() {
         super.onResume()
-        airQualityViewModel.getAirQualityData()
-
     }
 
     override fun onPause() {
