@@ -1,6 +1,7 @@
 package com.ram.airquality.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -32,48 +33,52 @@ class AirQualityAdapter :
     }
 
     class ItemViewholder(binding: ItemCityairBinding) : RecyclerView.ViewHolder(binding.root) {
+
         fun bind(item: AirQualityModelItem) = with(itemView) {
             itemView.tvCityName.text = item.city
             itemView.tvAirQuality.text = roundOffDecimal(item.aqi!!).toString()
             itemView.tvTime.text =
                 convertDurationToFormatted(item.timing!!, System.currentTimeMillis(), resources)
 
-            /*To change the background color of container*/
-            when (roundOffDecimal(item.aqi)) {
-                in 0..50 -> {
-                    itemView.container.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.good))
-                }
-                in 51..100 -> {
-                    itemView.container.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.satisfactory))
-                }
-                in 101..200 -> {
-                    itemView.container.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.moderate))
-                }
-                in 201..300 -> {
-                    itemView.container.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.poor))
-                }
-                in 301..400 -> {
-                    itemView.container.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.verypoor))
-                }
-                in 401..500 -> {
-                    itemView.container.setBackgroundColor(ContextCompat.getColor(itemView.context,
-                        R.color.sever))
-                }
+            updateContainerBackground(item.aqi, itemView)
 
-
-            }
         }
     }
 }
 
-fun roundOffDecimal(number: Double): Int? {
+private fun roundOffDecimal(number: Double): Int? {
     val decimal = BigDecimal(number).setScale(2, RoundingMode.CEILING)
     return decimal.toInt()
+}
+
+/*To change the background color of container*/
+private fun updateContainerBackground(aqi: Double, itemView: View) {
+    when (roundOffDecimal(aqi)) {
+        in 0..50 -> {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context,
+                R.color.good))
+        }
+        in 51..100 -> {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context,
+                R.color.satisfactory))
+        }
+        in 101..200 -> {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context,
+                R.color.moderate))
+        }
+        in 201..300 -> {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context,
+                R.color.poor))
+        }
+        in 301..400 -> {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context,
+                R.color.verypoor))
+        }
+        in 401..500 -> {
+            itemView.setBackgroundColor(ContextCompat.getColor(itemView.context,
+                R.color.sever))
+        }
+    }
 }
 
 /*Check the logic behind DiffUtil*/
