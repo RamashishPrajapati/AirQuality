@@ -2,7 +2,6 @@ package com.ram.airquality.viewModel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import com.ram.airquality.dao.AirQualityDao
 import com.ram.airquality.database.AirQualityDatabase
 import com.ram.airquality.repository.AirQualityRepository
