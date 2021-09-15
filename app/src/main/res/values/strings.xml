@@ -6,6 +6,6 @@
     <string name="minutes_length">%d minutes ago</string>
     <string name="hours_length">%d </string>
     <string name="seconds_length">%d seconds gao </string>
-    <string name="refresh">Refresh</string>
+    <string name="connect">Connect</string>
 
 </resources>

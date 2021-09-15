@@ -14,18 +14,18 @@ import com.ram.airquality.model.AirQualityModelItem
 interface AirQualityDao {
 
     @Insert
-    fun insertCityDetails(cityList: AirQualityModelItem): Long
+    suspend fun insertCityDetails(cityList: AirQualityModelItem): Long
 
     @Update
-    fun updateCityDetails(cityList: AirQualityModelItem): Int
+    suspend fun updateCityDetails(cityList: AirQualityModelItem): Int
 
     @Query("SELECT * FROM cityWiseAirReading")
     fun getAllCityDetails(): LiveData<List<AirQualityModelItem>>
 
     @Query("SELECT city FROM cityWiseAirReading WHERE city Like :city")
-    fun getItem(city: String): String?
+    suspend fun getItem(city: String): String?
 
-    fun insertOrUpdate(cityList: AirQualityModelItem) {
+    suspend fun insertOrUpdate(cityList: AirQualityModelItem) {
         try {
             val itemsFromDB = getItem(cityList.city)
             if (itemsFromDB == null)

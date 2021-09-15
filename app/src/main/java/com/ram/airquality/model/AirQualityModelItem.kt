@@ -14,5 +14,5 @@ data class AirQualityModelItem(
     val city: String,
     @Json(name = "aqi")
     val aqi: Double?,
-    var timing: Long?
+    var timing: Long = System.currentTimeMillis(),
 )

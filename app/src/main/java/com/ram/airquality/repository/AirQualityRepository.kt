@@ -7,6 +7,9 @@ import com.ram.airquality.model.AirQualityModelItem
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.reflect.Type
@@ -59,13 +62,9 @@ class AirQualityRepository(private val airQualityDao: AirQualityDao) {
                 val response = adapter.fromJson(it)
 
                 for (city in response!!.iterator()) {
-                    airQualityDao.insertOrUpdate(
-                        AirQualityModelItem(
-                            city.city,
-                            city.aqi,
-                            System.currentTimeMillis()
-                        )
-                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        airQualityDao.insertOrUpdate(city)
+                    }
                 }
             }
         } catch (e: Exception) {
